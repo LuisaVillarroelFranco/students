@@ -30,14 +30,17 @@ students['Algebra']=students['Algebra'].fillna(students['Algebra'].mean())
 students['Algebra'].isna().sum()
 
 students.isna().sum()
-//3
-studentsDatax.duplicated(keep=False)
-from pandas.core.arrays import categorical
-studentsDatax.loc[:,'Algebra'],categoriaSex=pd.factorize(studentsDatax['Algebra'], sort=True)
-studentsDatax.loc[:,'gender'],categoriAge=pd.factorize(studentsDatax['gender'], sort=True)
-categoriAge
+//2
+students=students[['ID','gender','Algebra', 'y']]
+students=students.dropna()
+students=students.drop_duplicates()
+studentsDatax=students[['ID','gender','Algebra']]
+studentsDatay=students[['y']]
+print(studentsDatay.head(),"\n", studentsDatax.head())
+pd.cut(studentsDatax['Algebra'],20,retbins=True)
+pd.cut(studentsDatax['Algebra'], [0,5,10,15,20,25,30,35,40,45,50,60,70,80, 90,98])
+studentsDatax['Algebra']=pd.cut(studentsDatax['Algebra'],[0,10,20,30,40,50,60,70,80,90,98,100])
 studentsDatax.head()
-//4
 //5
 import numpy as np
 from sklearn.model_selection import train_test_split
