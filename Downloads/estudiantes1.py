@@ -30,3 +30,195 @@ students['Algebra']=students['Algebra'].fillna(students['Algebra'].mean())
 students['Algebra'].isna().sum()
 
 students.isna().sum()
+
+//5
+import numpy as np
+from sklearn.model_selection import train_test_split
+
+studentsDatay=studentsDatay.to_numpy()
+x_train, x_test, y_train, y_test=train_test_split(studentsDatax, studentsDatay, test_size=0.3)
+
+print(x_train[0:10], x_test[0:10], y_train[0:10], y_test[0:10] ) 
+
+#import numpy as np
+
+def sigmoide(x):
+  return (1.0/(1.0+np.exp(-x)))
+def derivada(x):
+  return sigmoide(x)*(1.0-sigmoide(x))
+
+def neurona(entrada, pesosCO1, tendenciasC01, pesosCO2, tendenciasCO2, pesosCO3, tendenciasCO3,pesosCO4, tendenciasCO4,pesosCO5, tendenciasCO5, pesosCS, tendenciasCS):
+  entradaNetaC1=np.dot(pesosCO1, np.transpose(entrada))-tendenciasC01
+  salidaC1=sigmoide(entradaNetaC1)
+
+  entradaNetaC2 = np.dot(pesosCO2,salidaC1)-tendenciasCO2
+  salidaC2=sigmoide(entradaNetaC2)
+
+  entradaNetaC3 = np.dot(pesosCO3,salidaC2)-tendenciasCO3
+  salidaC3=sigmoide(entradaNetaC3)
+
+  entradaNetaC4 = np.dot(pesosCO4,salidaC3)-tendenciasCO4
+  salidaC4=sigmoide(entradaNetaC4)
+
+  entradaNetaC5 = np.dot(pesosCO5,salidaC4)-tendenciasCO5
+  salidaC5=sigmoide(entradaNetaC5)
+
+  entradaNetaCS = np.dot(pesosCS,salidaC5)-tendenciasCS
+  salida=sigmoide(entradaNetaCS)
+
+  return salida, entradaNetaCS,entradaNetaC5,entradaNetaC4, entradaNetaC3, entradaNetaC2, entradaNetaC1
+# el algoritmo recibe
+# FacorAprendizaje: que tanto se permite el cambio en los pesos w(t) = e*error'f'(neta)*xj
+# error: un valor de error que permitimos
+# entradas: el conjunto de entradas que se van a trabajar 
+# salidas: salidas esperadas
+# max-it: el numero de iteraciones que prmitimos
+# alpha: el valor de incremento del factor de aprendzaje
+# rho: El valor de decremento del factor de aprendizaje
+# neuronasC1: numero de neuronas en la capa oculta 1
+# neuronasC2: numero de neuronas en la capa oculta 2
+# neuronasC3: numero de neuronas en la capa oculta 3
+def backpropagation(entradas, salidas,factorAprendizaje, error, max_it, alpha, rho, neuronasC1, neuronasC2, neuronasC3,neuronasC4,neuronasC5):
+
+  # tiene 3 neuronas y como tres entradas tenemos una matriz de 3x3
+  pesosCO1=2*np.random.rand(neuronasC1,entradas.shape[1])-1
+  tendenciasC1=2*np.random.rand(neuronasC1)-1
+
+  # pesos capa oculta 2
+  # la capa oculta 2 tiene 2 neuronas y recive las salidas de 3 neuronas en la capa oculta 1
+  # genera una matriz de 2x3
+  pesosCO2=2*np.random.rand(neuronasC2,neuronasC1)-1
+  tendenciasC2=2*np.random.rand(neuronasC2)-1
+
+  # capa oculta 3
+  pesosCO3=2*np.random.rand(neuronasC3,neuronasC2)-1
+  tendenciasC3=2*np.random.rand(neuronasC3)-1
+
+  # capa oculta 4
+  pesosCO4=2*np.random.rand(neuronasC4,neuronasC3)-1
+  tendenciasC4=2*np.random.rand(neuronasC4)-1
+  
+  # capa oculta 5
+  pesosCO5=2*np.random.rand(neuronasC5,neuronasC4)-1
+  tendenciasC5=2*np.random.rand(neuronasC5)-1
+
+  # Generamos los pesos de la capa de salida, 1 salida (1 neurona) y tenemos 2 entradas que vienen de la capa oculta 2
+  pesosCS = 2*np.random.rand(neuronasC5)-1
+  tendenciasCS=2*np.random.rand(1)-1
+  it=0
+  errorVec=[]
+  errorAnt=float('inf')
+  while(it<max_it):
+    it+=1
+    errorIt=0
+    for i in range(0, entradas.shape[0]):
+      ent=entradas[i]
+      t=salidas[i]
+      y,entradaNetaCS,entradaNetaC5,entradaNetaC4, entradaNetaC3, entradaNetaC2, entradaNetaC1=neurona(
+          ent, pesosCO1, tendenciasC1, pesosCO2, tendenciasC2,pesosCO3, tendenciasC3,pesosCO4, tendenciasC4,pesosCO5, tendenciasC5, pesosCS, tendenciasCS
+        )
+
+      errorIt+=np.power(t-y,2)/2.0
+
+    errorVec.append(errorIt)
+    for i in range(0, entradas.shape[0]):
+      ent=entradas[i]
+      t=salidas[i]
+      y, entradaNetaCS,entradaNetaC5, entradaNetaC4,entradaNetaC3, entradaNetaC2, entradaNetaC1 = neurona(
+          ent, pesosCO1, tendenciasC1, pesosCO2, tendenciasC2, pesosCO3, tendenciasC3,pesosCO4, tendenciasC4,pesosCO5, tendenciasC5, pesosCS, tendenciasCS
+      )
+
+      # calcular el error en la https://meet.google.com/poh-rbpy-vtv?authuser=0capa salida
+      errorCS=(t-y)*derivada(entradaNetaCS)
+
+      # calcular la capa oculta 5
+      errorC5=0
+      for j in range(0,pesosCS.shape[0]):
+        errorC5+=pesosCS[j]*errorCS*derivada(entradaNetaC5[j])
+
+      # calcular la capa oculta 4
+      errorC4=0
+      for j in range(0,pesosCO5.shape[0]):
+        for k in range(0, pesosCO5.shape[1]):
+          errorC4 += pesosCO5[j][k]*errorC5*derivada(entradaNetaC4[k])
+
+      # calcular la capa oculta 3
+      errorC3=0
+      for j in range(0,pesosCO4.shape[0]):
+        for k in range(0, pesosCO4.shape[1]):
+          errorC3 += pesosCO4[j][k]*errorC4*derivada(entradaNetaC3[k])
+
+      #calcular el error capa oculta 2
+      errorC2=0
+      for j in range(0,pesosCO3.shape[0]):
+        for k in range(0, pesosCO3.shape[1]):
+          errorC2 += pesosCO3[j][k]*errorC3*derivada(entradaNetaC2[k])
+
+      #Calcular el error de la capa oculta 1
+      errorC1=0
+      for j in range(0, pesosCO2.shape[0]):
+        for k in range(0, pesosCO2.shape[1]):
+          errorC1 += pesosCO2[j][k]*errorC2*derivada(entradaNetaC1[k])
+
+      # actualiza pesos
+      # cada salida
+      for j in range(0, pesosCS.shape[0]):
+        pesosCS[j]+=factorAprendizaje*errorCS*entradaNetaCS
+
+      #Actualizar las tendencias
+      for j in range(0,tendenciasCS.shape[0]):
+        tendenciasCS[j]+=factorAprendizaje*errorCS*(-1)
+
+      #pesos capa oculta 5
+      for j in range(0, pesosCO5.shape[0]): #neurona de CO3
+        for k in range(0, pesosCO5.shape[1]): #Salida de la CO2
+          pesosCO5[j][k]+=factorAprendizaje*errorC5*entradaNetaC5[j]
+      # 
+      # actualizar las tendencias 5
+      for j in range(0, tendenciasC5.shape[0]):
+        tendenciasC5[j]+=factorAprendizaje*errorC5*(-1)
+
+      #pesos capa oculta 4
+      for j in range(0, pesosCO4.shape[0]): #neurona de CO3
+        for k in range(0, pesosCO4.shape[1]): #Salida de la CO2
+          pesosCO4[j][k]+=factorAprendizaje*errorC4*entradaNetaC4[j]
+      # 
+      # actualizar las tendencias 4
+      for j in range(0, tendenciasC4.shape[0]):
+        tendenciasC4[j]+=factorAprendizaje*errorC4*(-1)
+
+      #pesos capa oculta 3
+      for j in range(0, pesosCO3.shape[0]): #neurona de CO3
+        for k in range(0, pesosCO3.shape[1]): #Salida de la CO2
+          pesosCO3[j][k]+=factorAprendizaje*errorC3*entradaNetaC3[j]
+      # 
+      # actualizar las tendencias 3
+      for j in range(0, tendenciasC3.shape[0]):
+        tendenciasC3[j]+=factorAprendizaje*errorC3*(-1)
+
+      #pesos capa oculta 2
+      for j in range(0, pesosCO2.shape[0]): #neurona de CO2
+        for k in range(0, pesosCO2.shape[1]): #Salida de la CO1
+          pesosCO2[j][k]+=factorAprendizaje*errorC2*entradaNetaC2[j]
+      # 
+      # actualizar las tendencias 2
+      for j in range(0, tendenciasC2.shape[0]):
+        tendenciasC2[j]+=factorAprendizaje*errorC2*(-1)
+
+      # Pesos capa oculta 1
+      for j in range(0, pesosCO1.shape[0]):
+        for k in range(0, pesosCO1.shape[1]):
+          pesosCO1[j][k]+=factorAprendizaje*errorC1*entradaNetaC1[j]
+
+      #Actualizar las tendencias 1
+      for j in range(0,tendenciasC1.shape[0]):
+        tendenciasC1[j]+=factorAprendizaje*errorC1*(-1)
+
+    if errorIt < errorAnt:
+      factorAprendizaje*=alpha
+  else:
+    factorAprendizaje*=rho
+  errorAnt=errorIt
+  return pesosCS, pesosCO1, pesosCO2, pesosCO3, pesosCO4, pesosCO5, tendenciasC1, tendenciasC2, tendenciasC3,tendenciasC4,tendenciasC5, tendenciasCS, errorVec
+
+
