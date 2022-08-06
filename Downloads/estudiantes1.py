@@ -230,5 +230,48 @@ def backpropagation(entradas, salidas,factorAprendizaje, error, max_it, alpha, r
     factorAprendizaje*=rho
   errorAnt=errorIt
   return pesosCS, pesosCO1, pesosCO2, pesosCO3, pesosCO4, pesosCO5, tendenciasC1, tendenciasC2, tendenciasC3,tendenciasC4,tendenciasC5, tendenciasCS, errorVec
+// 6
+# parametros
+    neuronasC1=3
+    neuronasC2=7 #2n+1 Regla de Kolmorogov
+    neuronasC3=2
+    neuronasC4=2
+    neuronasC5=3
+    factorAprendizaje=0.6
+    alpha=1.05 # aumentar el factor de aprendizaje 
+    rho=0.95 #disminuir el factor de aprendizaje
+    max_it=1000
+    error=0.5
+    
+# x_train, x_test, y_train, y_test
+    pesosCS, pesosCO1, pesosCO2, pesosCO3,pesosCO4,pesosCO5, tc1, tc2, tc3,tc4, tc5, tcs, errorVec=backpropagation(
+    x_train, y_train,factorAprendizaje, error, max_it, alpha, rho, neuronasC1, neuronasC2, neuronasC3,neuronasC4, neuronasC5)
 
-
+    import matplotlib.pyplot as plt
+    plt.plot(errorVec)
+    plt.title("Error de entrenamiento")
+    
+    import math
+    def errorRNN(x,t):
+        error=0
+        emc=0
+        for i in range(0,x.shape[0]):
+            xi=x[i]
+            ti=t[i]
+            y,entredaNetaCS,entradaNetaC5,entradaNetaC4, entradaNetaC3,entradaNetaC2,entradaNetaC1=neurona(xi,pesosCO1,tc1,pesosCO2,tc2,pesosCO3,tc3,pesosCO4,tc4,pesosCO5,tc5,pesosCS, tcs)
+            
+            emc=pow((ti-y),2)/2
+            if int(round(y[0],0))!=ti:
+                error+=1
+                error=(error/x.shape[0])*100
+         return error, emc
+         
+        error,emc=errorRNN(x_test, y_test)
+        print(error,emc)
+        
+        from sklearn.neural_network import MLPClassifier
+        clf=MLPClassifier(solver='lbfgs', alpha=1e-5,hidden_layer_sizes=(neuronasC1, neuronasC2,neuronasC3,neuronasC4,neuronasC5),random_state=1)
+        clf.fit(x_train, y_train)
+        
+        clf.score(x_test, y_test)
+            
