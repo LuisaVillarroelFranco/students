@@ -41,6 +41,24 @@ pd.cut(studentsDatax['Algebra'],20,retbins=True)
 pd.cut(studentsDatax['Algebra'], [0,5,10,15,20,25,30,35,40,45,50,60,70,80, 90,98])
 studentsDatax['Algebra']=pd.cut(studentsDatax['Algebra'],[0,10,20,30,40,50,60,70,80,90,98,100])
 studentsDatax.head()
+//4
+from sklearn.preprocessing import StandardScaler
+
+scaler=StandardScaler()
+scaler.fit(studentsDatax)
+print(scaler.mean_)
+
+studentsDatax=scaler.fit_transform(studentsDatax)
+studentsDatax
+
+from sklearn.decomposition import PCA
+
+pca = PCA(n_components=2)
+pca.fit(studentsDatax)
+print(pca.explained_variance_ratio_)
+
+print(studentsDatax, studentsDatay)
+
 //5
 import numpy as np
 from sklearn.model_selection import train_test_split
